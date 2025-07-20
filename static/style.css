@@ -1,0 +1,814 @@
+/* ==========================================================================
+   1. Root Variables & General Styles
+   ========================================================================== */
+
+:root {
+    /* Colors */
+    --primary-green: #4CAF50;
+    --light-green: #e8f5e9; /* A lighter green for the background layer */
+    --theme-light-green: #66BB6A; /* Renamed original light-green */
+    --dark-green: #45a049;
+    --dark-grey: #333;
+    --medium-grey: #555;
+    --light-grey-bg: #f4f4f4; /* This will be the outermost background */
+    --white: #ffffff;
+    --chat-pink: #FF69B4;
+    --chat-pink-hover: #e652a2;
+    --chat-blue: #ADD8E6;
+    --text-color: #333;
+    --border-color: #ddd;
+
+    /* Shadows */
+    --shadow-light: 0 2px 5px rgba(0,0,0,0.1);
+    --shadow-medium: 0 4px 10px rgba(0,0,0,0.1);
+    --shadow-strong: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--light-grey-bg);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+main {
+    flex-grow: 1;
+    padding: 25px; /* Creates gap between page edge and white background */
+    display: flex;
+    flex-direction: column;
+    background-color: var(--white); /* The first background layer (white) */
+}
+
+/* ==========================================================================
+   2. Header / Navbar
+   ========================================================================== */
+
+.navbar {
+    background-color: var(--primary-green);
+    color: var(--white);
+    padding: 15px 20px;
+    box-shadow: var(--shadow-medium);
+    position: relative;
+    z-index: 1000;
+}
+
+.navbar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+}
+
+.navbar-logo {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-logo img {
+    height: 45px;
+    margin-right: 12px;
+}
+
+.site-title {
+    font-size: 1.9em;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.navbar-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--white);
+    font-size: 2em;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.navbar-links {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    padding-left: 0;
+}
+
+.nav-links li {
+    margin-left: 25px;
+}
+
+.nav-links a {
+    color: var(--white);
+    text-decoration: none;
+    font-size: 1.1em;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: block;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    background-color: var(--theme-light-green);
+    transform: translateY(-2px);
+}
+
+.lang-selector select {
+    background-color: var(--primary-green);
+    color: var(--white);
+    border: 1px solid var(--theme-light-green);
+    padding: 6px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 18px;
+    outline: none;
+}
+
+.navbar-links .dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.navbar-links .dropdown .dropbtn {
+    color: var(--white);
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+    background: none;
+    border: none;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.navbar-links .dropdown .dropbtn:hover {
+    background-color: var(--dark-green);
+    border-radius: 5px;
+}
+
+.navbar-links .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: var(--primary-green);
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.navbar-links .dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.navbar-links .dropdown-content a {
+    color: var(--white);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+}
+
+.navbar-links .dropdown-content a:hover {
+    background-color: var(--dark-green);
+}
+
+/* ==========================================================================
+   3. Main Page Content Wrappers (Layering)
+   ========================================================================== */
+
+/* This wrapper creates the light green background layer */
+.chat-container,
+.auth-page,
+.page-section {
+    background-color: var(--light-green); /* The second background layer (green) */
+    padding: 25px; /* Creates gap between green layer and final content */
+    border-radius: 20px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* ==========================================================================
+   4. Main Chat Page Interface
+   ========================================================================== */
+
+.chat-container {
+    align-items: center;
+}
+
+.chat-welcome-screen,
+.chat-interface {
+    box-shadow: var(--shadow-strong); /* Shadow is now on the final content */
+}
+
+/* Welcome Screen */
+.chat-welcome-screen {
+    text-align: center;
+    background-color: var(--white);
+    padding: 40px;
+    border-radius: 15px;
+    max-width: 450px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.welcome-chat-icon {
+    width: 120px;
+    height: auto;
+    margin-bottom: 25px;
+}
+
+.chat-welcome-screen h2 {
+    font-size: 2em;
+    color: var(--primary-green);
+    margin-bottom: 15px;
+}
+
+.chat-welcome-screen p {
+    color: var(--medium-grey);
+    margin-bottom: 30px;
+    line-height: 1.6;
+    font-size: 1.1em;
+}
+
+.start-chat-button {
+    background-color: var(--chat-pink);
+    color: var(--white);
+    border: none;
+    padding: 15px 30px;
+    border-radius: 30px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.start-chat-button:hover {
+    background-color: var(--chat-pink-hover);
+    transform: translateY(-3px);
+}
+
+/* Active Chat Interface */
+.chat-interface {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 650px;
+    height: 100%;
+    background-color: var(--white);
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.chat-interface .chat-messages {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background-color: var(--light-grey-bg);
+}
+
+.chat-interface .message {
+    max-width: 85%;
+    padding: 12px 18px;
+    border-radius: 20px;
+    line-height: 1.5;
+    word-wrap: break-word;
+    font-size: 1.05em;
+}
+
+.chat-interface .user-message {
+    background-color: var(--chat-pink);
+    color: var(--white);
+    align-self: flex-end;
+    border-bottom-right-radius: 8px;
+}
+
+.chat-interface .bot-message {
+    background-color: var(--chat-blue);
+    color: var(--dark-grey);
+    align-self: flex-start;
+    border-bottom-left-radius: 8px;
+}
+
+.chat-interface .chat-input-area {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background-color: var(--white);
+    border-top: 1px solid var(--border-color);
+}
+
+.chat-interface #user-input {
+    flex-grow: 1;
+    border: 1px solid var(--border-color);
+    border-radius: 28px;
+    padding: 12px 20px;
+    font-size: 1em;
+    margin-right: 10px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.chat-interface #user-input:focus {
+    border-color: var(--primary-green);
+}
+
+.chat-interface .icon-button {
+    background: none;
+    border: none;
+    color: var(--primary-green);
+    font-size: 1.8em;
+    cursor: pointer;
+    margin-left: 8px;
+    transition: color 0.3s ease, transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-interface .icon-button:hover {
+    color: var(--dark-grey);
+    transform: scale(1.1);
+}
+
+/* ==========================================================================
+   5. Authentication & Forms
+   ========================================================================== */
+
+.auth-page {
+    align-items: center;
+    flex-grow: 1;
+    height: auto;
+}
+
+.auth-card {
+    background-color: var(--white);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: var(--shadow-medium);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.auth-card h2 {
+    color: var(--primary-green);
+    margin-bottom: 25px;
+    font-size: 1.8em;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: var(--dark-grey);
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+.btn-primary {
+    background-color: var(--primary-green);
+    color: var(--white);
+}
+
+.btn-primary:hover {
+    background-color: var(--dark-green);
+}
+
+.auth-switch-link {
+    margin-top: 20px;
+    font-size: 0.95em;
+    color: var(--medium-grey);
+}
+
+.auth-switch-link a {
+    color: var(--primary-green);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.auth-switch-link a:hover {
+    text-decoration: underline;
+}
+
+/* Flash Messages */
+.messages {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+.alert {
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    font-size: 0.95em;
+    border: 1px solid transparent;
+}
+
+.alert-success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+.alert-danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+.alert-info { background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
+
+
+/* ==========================================================================
+   6. General Content Pages (Weather, Mandi, Schemes)
+   ========================================================================== */
+
+.page-section {
+    max-width: 1000px;
+    margin: 0 auto;
+    align-items: stretch;
+    gap: 25px;
+    height: auto;
+}
+
+.section-title {
+    text-align: center;
+    color: var(--dark-grey);
+    font-size: 2.5em;
+    margin-bottom: 15px;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 0;
+    height: 3px;
+    width: 80px;
+    background-color: var(--primary-green);
+    border-radius: 2px;
+}
+
+.section-description {
+    text-align: center;
+    color: var(--medium-grey);
+    font-size: 1.1em;
+    margin-bottom: 30px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.input-card, .result-card, .mandi-item, .scheme-item {
+    background-color: var(--white); /* Final content cards are white */
+    box-shadow: var(--shadow-medium);
+}
+
+.input-card {
+    padding: 30px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input-card label {
+    font-weight: bold;
+    color: var(--medium-grey);
+    margin-bottom: 5px;
+}
+
+.input-card input[type="text"],
+.input-card select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.input-card select {
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23555%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-5.4H18.6c-5%200-9.3%201.8-13.2%205.4A17.6%2017.6%200%200%200%200%2082.2c0%204.6%201.8%208.9%205.4%2012.2l128%20127.9c3.6%203.6%207.8%205.4%2012.2%205.4s8.6-1.8%2012.2-5.4l127.9-127.9c3.6-3.3%205.4-7.6%205.4-12.2c0-4.6-1.8-8.9-5.4-12.2z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+    padding-right: 30px;
+}
+
+.input-card input[type="text"]:focus,
+.input-card select:focus {
+    border-color: var(--primary-green);
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+    outline: none;
+}
+
+.input-card .form-button {
+    align-self: flex-start;
+    margin-top: 10px;
+    padding: 10px 20px;
+}
+
+.result-card {
+    padding: 30px;
+    border-radius: 10px;
+    min-height: 100px;
+    text-align: center;
+    color: var(--dark-grey);
+}
+
+.result-card h3 {
+    color: var(--primary-green);
+    font-size: 1.8em;
+    margin-bottom: 15px;
+}
+
+.result-card p {
+    margin-bottom: 8px;
+    font-size: 1.1em;
+}
+
+.error-message {
+    color: #d9534f;
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+.mandi-item, .scheme-item {
+    border: 1px solid #eee;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.mandi-item h4, .scheme-item h4 {
+    color: var(--primary-green);
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.3em;
+}
+
+
+/* ==========================================================================
+   7. Footer
+   ========================================================================== */
+
+footer {
+    background-color: var(--dark-grey);
+    color: var(--white);
+    text-align: center;
+    padding: 15px 20px;
+    margin-top: auto;
+    font-size: 0.9em;
+}
+
+
+/* ==========================================================================
+   8. Floating Chatbot Widget (Unaffected by layering)
+   ========================================================================== */
+
+.fab-chat-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: var(--primary-green);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 1.8em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    z-index: 1001;
+}
+
+.fab-chat-button:hover {
+    background-color: var(--dark-green);
+    transform: scale(1.05);
+}
+
+.floating-chatbot-window {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 380px;
+    height: 500px;
+    background-color: var(--white);
+    border-radius: 15px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1000;
+    transform: scale(0.8);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.floating-chatbot-window.active {
+    transform: scale(1);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.floating-chatbot-window .chatbot-header {
+    background-color: var(--primary-green);
+    color: white;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.floating-chatbot-window .chatbot-title { margin: 0; font-size: 1.2em; }
+
+.floating-chatbot-window .close-chatbot-button {
+    background: none; border: none; color: white;
+    font-size: 1.5em; cursor: pointer; padding: 5px;
+}
+
+.floating-chatbot-window .chatbot-messages {
+    flex-grow: 1; padding: 15px; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 10px; background-color: #f8f8f8;
+}
+
+.floating-chatbot-window .chat-message {
+    max-width: 80%; padding: 10px 15px; border-radius: 18px;
+    word-wrap: break-word; font-size: 0.95em; line-height: 1.4;
+    display: flex; align-items: center;
+}
+
+.floating-chatbot-window .user-message {
+    align-self: flex-end; background-color: #dcf8c6;
+    color: #333; border-bottom-right-radius: 4px;
+}
+
+.floating-chatbot-window .bot-message {
+    align-self: flex-start; background-color: #e0e0e0;
+    color: #333; border-bottom-left-radius: 4px;
+}
+
+.play-audio-icon { margin-left: 8px; cursor: pointer; color: #007bff; }
+.play-audio-icon:hover { color: #0056b3; }
+
+.floating-chatbot-window .chatbot-input-area {
+    display: flex; align-items: center; padding: 10px 15px;
+    border-top: 1px solid #eee; background-color: #f9f9f9;
+}
+
+.floating-chatbot-window #chat-input {
+    flex-grow: 1; padding: 8px 12px; border: 1px solid #ddd;
+    border-radius: 20px; font-size: 0.95em; margin-right: 8px; outline: none;
+}
+
+.floating-chatbot-window .send-button,
+.floating-chatbot-window .mic-button {
+    background-color: var(--primary-green); color: white; border: none; border-radius: 50%;
+    width: 40px; height: 40px; cursor: pointer; font-size: 1.1em;
+    transition: background-color 0.3s ease; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+
+.floating-chatbot-window .mic-button { margin-left: 5px; }
+
+.floating-chatbot-window .send-button:hover,
+.floating-chatbot-window .mic-button:hover { background-color: var(--dark-green); }
+
+.floating-chatbot-window .mic-button.recording { background-color: #e74c3c; }
+.floating-chatbot-window .mic-button.recording:hover { background-color: #c0392b; }
+
+
+/* ==========================================================================
+   9. Responsive Design
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    /* --- Main Layout --- */
+    main {
+        padding: 15px;
+    }
+    .chat-container, .auth-page, .page-section {
+        padding: 15px;
+    }
+
+    /* --- Navbar --- */
+    .navbar-header { flex-wrap: nowrap; }
+    .navbar-toggle { display: block; }
+    .navbar-links {
+        flex-direction: column; width: 100%; background-color: var(--primary-green);
+        position: absolute; top: 100%; left: 0; max-height: 0;
+        overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+    }
+    .navbar-links.active { max-height: 400px; padding: 10px 0; }
+    .nav-links { flex-direction: column; width: 100%; align-items: flex-start; }
+    .nav-links li { margin: 0; width: 100%; }
+    .nav-links a { padding: 12px 20px; width: 100%; border-radius: 0; }
+    .lang-selector { width: 100%; padding: 10px 20px; }
+    .lang-selector select { width: 100%; padding: 10px 15px; }
+    .navbar-links .dropdown { width: 100%; }
+    .navbar-links .dropdown .dropbtn { width: 100%; text-align: left; padding: 12px 20px; border-radius: 0; }
+    .navbar-links .dropdown-content { position: static; box-shadow: none; border-radius: 0; width: 100%; background-color: var(--dark-green); }
+    .navbar-links .dropdown-content a { padding-left: 40px; }
+
+    /* --- Main Content & Pages --- */
+    .section-title { font-size: 2em; }
+    .section-description { font-size: 1em; }
+    .input-card { padding: 20px; }
+
+    /* --- Main Chat Page --- */
+    .chat-welcome-screen { padding: 30px 20px; }
+    .welcome-chat-icon { width: 90px; }
+    .chat-welcome-screen h2 { font-size: 1.6em; }
+    .chat-welcome-screen p { font-size: 1em; }
+    .start-chat-button { padding: 12px 25px; font-size: 1.1em; }
+    .chat-interface .chat-messages { padding: 15px; gap: 8px; }
+    .chat-interface .message { padding: 10px 15px; font-size: 0.95em; max-width: 90%; }
+    .chat-interface .chat-input-area { padding: 10px; }
+    .chat-interface #user-input { padding: 10px 15px; font-size: 0.9em; }
+    .chat-interface .icon-button { font-size: 1.5em; }
+
+    /* --- Floating Chat Widget --- */
+    .floating-chatbot-window {
+        width: 90vw; height: 70vh; bottom: 70px; left: 5vw; right: 5vw;
+    }
+    .fab-chat-button {
+        bottom: 10px; right: 10px; width: 50px; height: 50px; font-size: 1.5em;
+    }
+}
+
+@media (max-width: 480px) {
+    /* --- Main Layout --- */
+    main { padding: 10px; }
+    .chat-container, .auth-page, .page-section { padding: 10px; }
+    
+    /* --- Navbar --- */
+    .navbar-logo img { height: 35px; }
+    .site-title { font-size: 1.6em; }
+    .navbar-toggle { font-size: 1.8em; }
+
+    /* --- Chat Page --- */
+    .chat-welcome-screen { padding: 25px 15px; }
+    .welcome-chat-icon { width: 80px; }
+    .chat-welcome-screen h2 { font-size: 1.4em; }
+    .start-chat-button { font-size: 1em; }
+    
+    /* --- Auth Page --- */
+    .auth-card { padding: 20px; }
+    .auth-card h2 { font-size: 1.6em; }
+}
