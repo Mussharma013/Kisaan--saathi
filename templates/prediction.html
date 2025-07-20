@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-content prediction-page">
+    <h1>{{ g.text.prediction_title }}</h1>
+    <p>{{ g.text.select_image }}</p>
+
+    <div class="prediction-form">
+        <input type="file" id="cropImageInput" accept="image/*">
+        <button id="uploadImageButton">{{ g.text.upload_button }}</button>
+        <div id="uploadStatus"></div>
+        <div id="predictionResult"></div>
+        <img id="uploadedImageView" src="" alt="Uploaded Crop Image" style="max-width: 100%; display: none; margin-top: 20px; border-radius: 8px;">
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cropImageInput = document.getElementById('cropImageInput');
+        const uploadImageButton = document.getElementById('uploadImageButton');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const predictionResult = document.getElementById('predictionResult');
+        const uploadedImageView = document.getElementById('uploadedImageView');
+
+        if (uploadImageButton) {
+            uploadImageButton.addEventListener('click', async () => {
+                const file = cropImageInput.files[0];
+                if (!file) {
+                    uploadStatus.textContent = "{{ g.text.prediction_no_file }}";
+                    uploadStatus.style.color = 'red';
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                uploadStatus.textContent = '{{ g.text.prediction_uploading }}...';
+                uploadStatus.style.color = 'gray';
+                predictionResult.textContent = ''; // Clear previous result
+                uploadedImageView.style.display = 'none'; // Hide image until successful upload
+
+                try {
+                    const response = await fetch('/upload_crop_image', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json(); // Parse JSON response
+
+                    if (data.success) {
+                        uploadStatus.textContent = data.message;
+                        uploadStatus.style.color = 'green';
+                        predictionResult.innerHTML = `<h3>{{ g.text.prediction_result }}:</h3><p>${data.prediction}</p>`;
+                        if (data.image_url) {
+                            uploadedImageView.src = data.image_url;
+                            uploadedImageView.style.display = 'block';
+                        }
+                    } else {
+                        uploadStatus.textContent = data.error;
+                        uploadStatus.style.color = 'red';
+                    }
+                } catch (error) {
+                    console.error('Error uploading image or parsing response:', error);
+                    uploadStatus.textContent = "{{ g.text.prediction_error_network }}";
+                    uploadStatus.style.color = 'red';
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

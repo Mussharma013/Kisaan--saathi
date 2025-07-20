@@ -1,0 +1,13 @@
+<section class="chatbot-section">
+    <div class="chatbot-container">
+        <h2 class="chatbot-header">{{ g.text.chatbot_title }}</h2>
+        <div id="chatbot-messages" class="chatbot-messages">
+            </div>
+        <div class="chatbot-input-area">
+            <input type="text" id="chat-input" placeholder="{{ g.text.type_your_query }}">
+            <button id="send-button" class="send-button">{{ g.text.send }}</button>
+            <button id="chat-mic-button" class="mic-button" title="{{ g.text.mic_on }}"><i class="fas fa-microphone"></i></button>
+        </div>
+        <audio id="audio-player" style="display:none;"></audio>
+    </div>
+</section>

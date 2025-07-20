@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-content auth-page">
+    <div class="auth-card">
+        <h2>{{ g.text.login_title }}</h2>
+        <form method="POST" action="{{ url_for('login', lang=g.current_lang) }}">
+            <div class="form-group">
+                <label for="username_or_email">{{ g.text.login_username_email }}:</label>
+                <input type="text" id="username_or_email" name="username_or_email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">{{ g.text.login_password }}:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">{{ g.text.login_button }}</button>
+        </form>
+        <p class="auth-switch-link">{{ g.text.login_no_account }} <a href="{{ url_for('signup', lang=g.current_lang) }}">{{ g.text.login_signup_link }}</a></p>
+    </div>
+</div>
+{% endblock %}

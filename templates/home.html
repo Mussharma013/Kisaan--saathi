@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% set active_page = 'home' %}
+{% set now = now_datetime %} {# Pass datetime object from Flask to base.html #}
+
+{% block content %}
+    <div class="chat-container">
+        <div class="chat-welcome-screen" id="chat-welcome-screen">
+            <img src="/static/chatbubble.jpg" alt="Chat Bubbles" class="welcome-chat-icon">
+            <h2>{{ text.welcome_chatbot }}</h2>
+            <p>{{ text.home_page_description }}</p>
+            <button class="start-chat-button">{{ text.input_placeholder }}</button> {# Reusing placeholder as button text #}
+        </div>
+
+        <div class="chat-interface" style="display: none;"> {# Hidden by default, shown after clicking welcome button #}
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot-message">
+                    <p>{{ text.welcome_chatbot }}</p>
+                    <audio id="bot-audio" src="" preload="auto"></audio>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <input type="text" id="user-input" placeholder="{{ text.input_placeholder }}">
+                <button id="send-button" class="icon-button"><i class="fas fa-paper-plane"></i></button>
+                <button id="mic-button" class="icon-button"><i class="fas fa-microphone"></i></button>
+            </div>
+        </div>
+    </div>
+{% endblock %}

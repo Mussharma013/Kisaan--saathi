@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-content auth-page">
+    <div class="auth-card">
+        <h2>{{ g.text.signup_title }}</h2>
+        <form method="POST" action="{{ url_for('signup', lang=g.current_lang) }}">
+            <div class="form-group">
+                <label for="username">{{ g.text.signup_username }}:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="email">{{ g.text.signup_email }}:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">{{ g.text.signup_password }}:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm_password">{{ g.text.signup_confirm_password }}:</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">{{ g.text.signup_button }}</button>
+        </form>
+        <p class="auth-switch-link">{{ g.text.signup_already_account }} <a href="{{ url_for('login', lang=g.current_lang) }}">{{ g.text.signup_login_link }}</a></p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <h2 class="section-title">{{ g.text.mandi_rates }}</h2>
+        <p class="section-description">{{ g.text.mandi_rates_description }}</p>
+
+        <div class="input-card">
+            <div class="form-group">
+                <label for="mandi-state-select">{{ g.text.select_state }}:</label>
+                <select id="mandi-state-select">
+                    <option value="">-- {{ g.text.select_state }} --</option>
+                    <option value="Uttar Pradesh">Uttar Pradesh</option>
+                    <option value="Bihar">Bihar</option>
+                    </select>
+            </div>
+            <div class="form-group">
+                <label for="mandi-district-select">{{ g.text.select_district }}:</label>
+                <select id="mandi-district-select">
+                    <option value="">-- {{ g.text.select_district }} --</option>
+                    </select>
+            </div>
+            <div class="form-group">
+                <label for="mandi-crop-select">{{ g.text.select_crop }}:</label>
+                <select id="mandi-crop-select">
+                    <option value="">-- {{ g.text.select_crop }} --</option>
+                    <option value="Wheat">Wheat</option>
+                    <option value="Rice">Rice</option>
+                    <option value="Potato">Potato</option>
+                    <option value="Mustard">Mustard</option>
+                    <option value="Maize">Maize</option>
+                    </select>
+            </div>
+            <button id="get-mandi-rates-button" class="form-button">{{ g.text.get_rates }}</button>
+        </div>
+
+        <div id="mandi-rates-result" class="result-card">
+            </div>
+    </div>
+</section>
+{% endblock %}

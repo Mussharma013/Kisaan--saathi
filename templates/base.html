@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="{{ g.current_lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ g.text.app_title }}</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="icon" type="image/png" href="/static//logo.png">    
+  <script>
+  window.userAuthenticated = {% if g.current_user.is_authenticated %}true{% else %}false{% endif %};
+    // Also pass the base URL for Flask's static files, useful for images etc.
+    window.staticUrl = "{{ url_for('static', filename='') }}";
+    // Pass the current language to JavaScript for TTS and Speech Recognition
+    window.currentAppLang = "{{ g.current_lang }}";
+    // Pass translated messages for JS errors/prompts
+    window.appMessages = {
+        loginRequiredChatbot: "{{ g.text.get('login_required_chatbot', 'Please log in or sign up to use the chatbot.').strip()|safe }}",
+        chatbotError: "{{ g.text.get('chatbot_error', 'Could not get response. Please try again.').strip()|safe }}",
+        speechRecognitionNotSupported: "{{ g.text.get('speech_not_supported', 'Speech recognition not supported in your browser. Please use Chrome.').strip()|safe }}",
+        couldNotUnderstandSpeech: "{{ g.text.get('speech_error_generic', 'Could not understand your speech. Please try again.').strip()|safe }}",
+        micOn: "{{ g.text.get('mic_on', 'Microphone On').strip()|safe }}",
+        micOff: "{{ g.text.get('mic_off', 'Microphone Off').strip()|safe }}",
+        // NEW MESSAGES FOR WEATHER, MANDI, SCHEMES (from previous response)
+        "weather_no_city": "{{ g.text.get('weather_no_city', 'City name is required.').strip()|safe }}",
+        "weather_city_not_found": "{{ g.text.get('weather_city_not_found', 'City not found or API error.').strip()|safe }}",
+        "weather_api_error": "{{ g.text.get('weather_api_error', 'Could not connect to weather service.').strip()|safe }}",
+        "weather_general_error": "{{ g.text.get('weather_general_error', 'An unexpected error occurred.').strip()|safe }}",
+        "fetching_weather": "{{ g.text.get('fetching_weather', 'Fetching weather for {city}...').strip()|safe }}",
+        "weather_in": "{{ g.text.get('weather_in', 'Weather in').strip()|safe }}",
+        "temperature": "{{ g.text.get('temperature', 'Temperature').strip()|safe }}",
+        "description": "{{ g.text.get('description', 'Description').strip()|safe }}",
+        "humidity": "{{ g.text.get('humidity', 'Humidity').strip()|safe }}",
+        "wind_speed": "{{ g.text.get('wind_speed', 'Wind Speed').strip()|safe }}",
+
+        "select_state_district_prompt": "{{ g.text.get('select_state_district_prompt', 'Please select both State and District.').strip()|safe }}",
+        "fetching_mandi_rates": "{{ g.text.get('fetching_mandi_rates', 'Fetching mandi rates...').strip()|safe }}",
+        "mandi_rates_for": "{{ g.text.get('mandi_rates_for', 'Mandi Rates for').strip()|safe }}",
+        "min_price": "{{ g.text.get('min_price', 'Min. Price').strip()|safe }}",
+        "max_price": "{{ g.text.get('max_price', 'Max. Price').strip()|safe }}",
+        "avg_price": "{{ g.text.get('avg_price', 'Avg. Price').strip()|safe }}",
+        "no_specific_rates": "{{ g.text.get('no_specific_rates', 'No specific rates found for this crop, displaying available rates for the district.').strip()|safe }}",
+        "mandi_general_error": "{{ g.text.get('mandi_general_error', 'An error occurred fetching mandi rates.').strip()|safe }}",
+
+        "fetching_schemes": "{{ g.text.get('fetching_schemes', 'Fetching schemes...').strip()|safe }}",
+        "schemes_found_title": "{{ g.text.get('schemes_found_title', 'Found Schemes').strip()|safe }}",
+        "category": "{{ g.text.get('category', 'Category').strip()|safe }}",
+        "eligibility": "{{ g.text.get('eligibility', 'Eligibility').strip()|safe }}",
+        "schemes_general_error": "{{ g.text.get('schemes_general_error', 'An error occurred fetching schemes.').strip()|safe }}"
+    };
+</script>
+</head>
+<body>
+    <header class="navbar">
+        <div class="navbar-header">
+            <div class="navbar-logo">
+                <img src="/static/logo.png" alt="Kisaan Saathi Logo">
+                <span class="site-title">{{ g.text.app_title }}</span>
+            </div>
+            <button class="navbar-toggle" id="navbar-toggle" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav class="navbar-links" id="navbar-links">
+                <ul class="nav-links">
+                    <li><a href="{{ url_for('home', lang=g.current_lang) }}" class="{% if active_page == 'home' %}active{% endif %}">{{ g.text.home }}</a></li>
+                    <li><a href="{{ url_for('weather', lang=g.current_lang) }}" class="{% if active_page == 'weather' %}active{% endif %}">{{ g.text.weather }}</a></li>
+                    <li><a href="{{ url_for('mandi_rates', lang=g.current_lang) }}" class="{% if active_page == 'mandi_rates' %}active{% endif %}">{{ g.text.mandi_rates }}</a></li>
+                    <li><a href="{{ url_for('schemes', lang=g.current_lang) }}" class="{% if active_page == 'schemes' %}active{% endif %}">{{ g.text.schemes }}</a></li>
+                    <li><a href="{{ url_for('prediction', lang=g.current_lang) }}" class="{% if active_page == 'prediction' %}active{% endif %}">{{ g.text.prediction }}</a></li>
+{% if g.current_user.is_authenticated %}
+                    <li class="dropdown">
+                        <a href="#" class="dropbtn">{{ g.current_user.username }} <i class="fas fa-caret-down"></i></a>
+                        <div class="dropdown-content">
+                            <a href="#">{{ g.text.your_history }}</a> {# Placeholder for user history link #}
+                            <a href="{{ url_for('logout', lang=g.current_lang) }}">{{ g.text.logout }}</a>
+                        </div>
+                    </li>
+                    {% else %}
+                    <li><a href="{{ url_for('login', lang=g.current_lang) }}" class="{% if active_page == 'login' %}active{% endif %}">{{ g.text.login }}</a></li>
+                    <li><a href="{{ url_for('signup', lang=g.current_lang) }}" class="{% if active_page == 'signup' %}active{% endif %}">{{ g.text.signup }}</a></li>
+                    {% endif %}
+
+                    <li class="lang-selector">
+                        <select id="language-switcher">
+                            <option value="en" {% if g.current_lang == 'en' %}selected{% endif %}>English</option>
+                            <option value="hi" {% if g.current_lang == 'hi' %}selected{% endif %}>हिन्दी</option>
+                            <option value="bhojpuri" {% if g.current_lang == 'bhojpuri' %}selected{% endif %}>भोजपुरी</option>
+                        </select>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>&copy; {{ g.now_datetime.year }} {{ g.text.app_title }}</p>
+        <p>{{ g.text.contact_support }}</p>
+    </footer>
+
+    <button class="fab-chat-button" id="fab-chat-button" title="Open Chatbot">
+        <i class="fas fa-comment-dots"></i>
+    </button>
+
+    <div class="floating-chatbot-window" id="floating-chatbot-window">
+        <div class="chatbot-header">
+            <h3 class="chatbot-title">{{ g.text.chatbot_title }}</h3>
+            <button class="close-chatbot-button" id="close-chatbot-button"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="chatbot-messages" class="chatbot-messages">
+            </div>
+        <div class="chatbot-input-area">
+            <input type="text" id="chat-input" placeholder="{{ g.text.type_your_query }}">
+            <button id="send-button" class="send-button"><i class="fas fa-paper-plane"></i></button>
+            <button id="chat-mic-button" class="mic-button" title="{{ g.text.mic_on }}"><i class="fas fa-microphone"></i></button>
+        </div>
+    </div>
+    <audio id="audio-player" style="display:none;"></audio>
+
+    <script src="/static/script.js" defer></script>
+</body>
+</html>
