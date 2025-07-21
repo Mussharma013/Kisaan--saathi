@@ -1,4 +1,4 @@
-# 🌾 Kisaan Saathi – Voice & AI Assistant for Indian Farmers
+# Kisaan Saathi – Voice & AI Assistant for Indian Farmers
 
 **Kisaan Saathi** is a multilingual AI-powered assistant web application designed for Indian farmers. It bridges the digital divide by providing localized voice/chat interaction in rural languages like **Hindi**, **Bhojpuri**, **Gujarati**, and others.
 
@@ -6,9 +6,9 @@ The platform offers real-time information on **crop diseases**, **mandi prices**
 
 ---
 
-## 📌 Key Features
+Key Features
 
-### 🧠 AI Voice Assistant
+AI Voice Assistant
 - Natural interaction using speech/text in regional languages
 - Powered by **GPT-4 via LangChain**
 - Voice-to-text (Whisper/Vosk) and text-to-speech (gTTS/Coqui)
