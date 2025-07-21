@@ -36,13 +36,11 @@ login_manager.login_view = 'login' # Route name for login page
 login_manager.login_message_category = "info" # Flash message category
 
 # --- User Model ---
-# ...
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False) # Corrected this line
+    username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
-# ...
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -53,11 +51,50 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f"User('{self.username}', '{self.email}')"
 
+from flask_sqlalchemy import SQLAlchemy # Assuming you're using Flask-SQLAlchemy
+
+# ... (your app and db setup) ...
+
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    # The recommended way is to use db.session.get()
+    # Ensure 'db' is your Flask-SQLAlchemy instance (e.g., db = SQLAlchemy(app))
+    return db.session.get(User, int(user_id))
+# Example in app.py or a separate translations.py
+TRANSLATIONS = {
+    'en': {
+        'Uttar Pradesh': 'Uttar Pradesh',
+        'Bihar': 'Bihar',
+        'Varanasi': 'Varanasi',
+        'Wheat': 'Wheat',
+        'Min. Price': 'Min. Price',
+        'Government Schemes Found': 'Government Schemes Found',
+        # ... all your messages and data ...
+    },
+    'hi': {
+        'Uttar Pradesh': 'उत्तर प्रदेश',
+        'Bihar': 'बिहार',
+        'Varanasi': 'वाराणसी',
+        'Wheat': 'गेहूं',
+        'Min. Price': 'न्यूनतम मूल्य',
+        'Government Schemes Found': 'सरकारी योजनाएं मिलीं',
+        # ... all Hindi translations ...
+    },
+    'bho': {
+        'Uttar Pradesh': 'उत्तर प्रदेश',
+        'Bihar': 'बिहार',
+        'Varanasi': 'वाराणसी',
+        'Wheat': 'गेहूँ',
+        'Min. Price': 'न्यूनतम दाम',
+        'Government Schemes Found': 'सरकारी योजना मिलल',
+        # ... all Bhojpuri translations ...
+    }
+}
 
-# --- Language Data (from previous interactions, with new strings) ---
+def _(key, lang='en'):
+    """Simple translation lookup function."""
+    return TRANSLATIONS.get(lang, {}).get(key, key) # Fallback to English, then key itself
+# --- Language Data (Updated with 'bho' key and new strings) ---
 lang_data = {
     'en': {
         "app_title": "Kisaan Saathi",
@@ -128,8 +165,53 @@ lang_data = {
         "user_exists_email": "Email already exists. Please choose a different one.",
         "passwords_not_match": "Passwords do not match.",
         "registration_success": "Registration successful! Please log in.",
-        "login_required_chatbot": "Please log in or sign up to use the chatbot.", # NEW STRING
-        "chatbot_error": "Could not get response. Please try again." # NEW STRING for general chat error
+        "login_required_chatbot": "Please log in or sign up to use the chatbot.",
+        "chatbot_error": "Could not get response. Please try again.",
+        "login_success": "Logged in successfully!",
+        "logged_out_message": "You have been logged out.",
+        "weather_no_city": "City name is required.",
+        "weather_city_not_found": "City not found or API error.",
+        "weather_api_error": "Could not connect to weather service.",
+        "weather_general_error": "An unexpected error occurred.",
+        "fetching_weather": "Fetching weather for {city}...",
+        "weather_in": "Weather in",
+        "temperature": "Temperature",
+        "description": "Description",
+        "humidity": "Humidity",
+        "wind_speed": "Wind Speed",
+        "select_state_district_prompt": "Please select both State and District.",
+        "fetching_mandi_rates": "Fetching mandi rates...",
+        "mandi_rates_for": "Mandi Rates for",
+        "min_price": "Min. Price",
+        "max_price": "Max. Price",
+        "avg_price": "Avg. Price",
+        "no_specific_rates": "No specific rates found for this crop, displaying available rates for the district.",
+        "mandi_general_error": "An error occurred fetching mandi rates.",
+        "fetching_schemes": "Fetching schemes...",
+        "schemes_found_title": "Found Schemes",
+        "category": "Category",
+        "eligibility": "Eligibility",
+        "schemes_general_error": "An error occurred fetching schemes.",
+        "weather_ask": "I can provide weather updates. What city are you interested in?", # Added for chatbot
+        "crop_ask": "I can help with crop information. What specific crop or issue are you curious about?", # Added for chatbot
+        "schemes_ask": "I have information on government schemes. What kind of scheme are you looking for?", # Added for chatbot
+        "default_bot_response": "I am Kisaan Saathi. How can I assist you with farming-related queries?", # Added for chatbot
+        "state_name_up": "Uttar Pradesh", # for data localization
+        "state_name_br": "Bihar",
+        "dist_name_vns": "Varanasi",
+        "dist_name_pna": "Patna",
+        "dist_name_fzd": "Firozabad",
+        "crop_name_wheat": "Wheat",
+        "crop_name_rice": "Rice",
+        "crop_name_potato": "Potato",
+        "crop_name_mustard": "Mustard",
+        "crop_name_maize": "Maize",
+        "scheme_cat_insurance": "Insurance",
+        "scheme_cat_credit": "Credit",
+        "scheme_cat_organic_farming": "Organic Farming",
+        "scheme_cat_soil_health": "Soil Health",
+        "scheme_cat_irrigation": "Irrigation",
+        "unit_quintal": "quintal" # For mandi rates unit
     },
     'hi': {
         "app_title": "किसान साथी",
@@ -200,10 +282,55 @@ lang_data = {
         "user_exists_email": "ईमेल पहले से मौजूद है। कृपया कोई भिन्न चुनें।",
         "passwords_not_match": "पासवर्ड मेल नहीं खाते।",
         "registration_success": "पंजीकरण सफल! कृपया लॉगिन करें।",
-        "login_required_chatbot": "चैटबॉट का उपयोग करने के लिए कृपया लॉगिन या साइन अप करें।", # NEW STRING
-        "chatbot_error": "प्रतिक्रिया प्राप्त नहीं हो सकी। कृपया पुनः प्रयास करें।" # NEW STRING
+        "login_required_chatbot": "चैटबॉट का उपयोग करने के लिए कृपया लॉगिन या साइन अप करें।",
+        "chatbot_error": "प्रतिक्रिया प्राप्त नहीं हो सकी। कृपया पुनः प्रयास करें।",
+        "login_success": "सफलतापूर्वक लॉग इन किया गया!",
+        "logged_out_message": "आप लॉग आउट हो गए हैं।",
+        "weather_no_city": "शहर का नाम आवश्यक है।",
+        "weather_city_not_found": "शहर नहीं मिला या API त्रुटि।",
+        "weather_api_error": "मौसम सेवा से कनेक्ट नहीं हो सका।",
+        "weather_general_error": "एक अप्रत्याशित त्रुटि हुई।",
+        "fetching_weather": "शहर {city} के लिए मौसम लाया जा रहा है...",
+        "weather_in": "में मौसम",
+        "temperature": "तापमान",
+        "description": "विवरण",
+        "humidity": "आर्द्रता",
+        "wind_speed": "हवा की गति",
+        "select_state_district_prompt": "कृपया राज्य और जिला दोनों का चयन करें।",
+        "fetching_mandi_rates": "मंडी दरें लाई जा रही हैं...",
+        "mandi_rates_for": "के लिए मंडी दरें",
+        "min_price": "न्यूनतम मूल्य",
+        "max_price": "अधिकतम मूल्य",
+        "avg_price": "औसत मूल्य",
+        "no_specific_rates": "इस फसल के लिए कोई विशिष्ट दरें नहीं मिलीं, जिले के लिए उपलब्ध दरें प्रदर्शित की जा रही हैं।",
+        "mandi_general_error": "मंडी दरें लाने में एक त्रुटि हुई।",
+        "fetching_schemes": "योजनाएं लाई जा रही हैं...",
+        "schemes_found_title": "मिली योजनाएं",
+        "category": "श्रेणी",
+        "eligibility": "पात्रता",
+        "schemes_general_error": "योजनाएं लाने में एक त्रुटि हुई।",
+        "weather_ask": "मैं मौसम के अपडेट प्रदान कर सकता हूँ। आप किस शहर में रुचि रखते हैं?",
+        "crop_ask": "मैं फसल की जानकारी में मदद कर सकता हूँ। आप किस विशिष्ट फसल या मुद्दे के बारे में उत्सुक हैं?",
+        "schemes_ask": "मेरे पास सरकारी योजनाओं की जानकारी है। आप किस तरह की योजना की तलाश कर रहे हैं?",
+        "default_bot_response": "मैं किसान साथी हूँ। मैं खेती संबंधी प्रश्नों में आपकी कैसे सहायता कर सकता हूँ?",
+        "state_name_up": "उत्तर प्रदेश",
+        "state_name_br": "बिहार",
+        "dist_name_vns": "वाराणसी",
+        "dist_name_pna": "पटना",
+        "dist_name_fzd": "फ़िरोज़ाबाद",
+        "crop_name_wheat": "गेहूं",
+        "crop_name_rice": "चावल",
+        "crop_name_potato": "आलू",
+        "crop_name_mustard": "सरसों",
+        "crop_name_maize": "मक्का",
+        "scheme_cat_insurance": "बीमा",
+        "scheme_cat_credit": "ऋण",
+        "scheme_cat_organic_farming": "जैविक खेती",
+        "scheme_cat_soil_health": "मिट्टी का स्वास्थ्य",
+        "scheme_cat_irrigation": "सिंचाई",
+        "unit_quintal": "क्विंटल"
     },
-    'bhojpuri': {
+    'bho': { # Changed key from 'bhojpuri' to 'bho' for consistency
         "app_title": "किसान साथी",
         "smart_agri_helper": "रउआं के स्मार्ट खेती के मददगार",
         "home": "होम",
@@ -272,8 +399,53 @@ lang_data = {
         "user_exists_email": "ईमेल पहिले से मौजूद बा। कृपया दोसर चुनीं।",
         "passwords_not_match": "पासवर्ड मेल नइखे खात।",
         "registration_success": "पंजीकरण सफल भइल! कृपया लॉगिन करीं।",
-        "login_required_chatbot": "चैटबॉट के उपयोग खातिर कृपया लॉगिन करीं भा साइन अप करीं।", # NEW STRING
-        "chatbot_error": "जवाब ना मिल पावल। फेरु से कोशिश करीं।" # NEW STRING
+        "login_required_chatbot": "चैटबॉट के उपयोग खातिर कृपया लॉगिन करीं भा साइन अप करीं।",
+        "chatbot_error": "जवाब ना मिल पावल। फेरु से कोशिश करीं।",
+        "login_success": "सफलतापूर्वक लॉगिन भइल!",
+        "logged_out_message": "रउआं लॉगआउट हो गइल बानी।",
+        "weather_no_city": "शहर के नाम चाहीं।",
+        "weather_city_not_found": "शहर ना मिलल भा एपीआई के गलती।",
+        "weather_api_error": "मौसम सेवा से जुड़ ना पावल।",
+        "weather_general_error": "एक अजूबा गलती भइल।",
+        "fetching_weather": "शहर {city} खातिर मौसम ले आवल जात बा...",
+        "weather_in": "में मौसम",
+        "temperature": "तापमान",
+        "description": "विवरण",
+        "humidity": "नमी",
+        "wind_speed": "हवा के गति",
+        "select_state_district_prompt": "कृपया राज्य आ जिला दुनो चुनीं।",
+        "fetching_mandi_rates": "मंडी दरें ले आवल जात बा...",
+        "mandi_rates_for": "खातिर मंडी दरें",
+        "min_price": "न्यूनतम दाम",
+        "max_price": "अधिकतम दाम",
+        "avg_price": "औसत दाम",
+        "no_specific_rates": "ई फसल खातिर कोनो खास दर ना मिलल, जिला खातिर उपलब्ध दरें देखावल जात बा।",
+        "mandi_general_error": "मंडी दरें ले आवत घरी एगो गलती भइल।",
+        "fetching_schemes": "योजनाएं ले आवल जात बा...",
+        "schemes_found_title": "मिलल योजनाएं",
+        "category": "श्रेणी",
+        "eligibility": "पात्रता",
+        "schemes_general_error": "योजनाएं ले आवत घरी एगो गलती भइल।",
+        "weather_ask": "हम मौसम के अपडेट दे सकत बानी। रउआं के कवन शहर में रुचि बा?",
+        "crop_ask": "हम फसल के जानकारी में मदद कर सकत बानी। रउआं के कवनो खास फसल भा समस्या के बारे में जानल बा?",
+        "schemes_ask": "हमरा लगे सरकारी योजना के जानकारी बा। रउआं कवन तरह के योजना खोजत बानी?",
+        "default_bot_response": "हम किसान साथी बानी। हम रउआं के खेती से संबंधित सवालन में कइसे मदद कर सकत बानी?",
+        "state_name_up": "उत्तर प्रदेश",
+        "state_name_br": "बिहार",
+        "dist_name_vns": "वाराणसी",
+        "dist_name_pna": "पटना",
+        "dist_name_fzd": "फिरोजाबाद",
+        "crop_name_wheat": "गेहूँ",
+        "crop_name_rice": "चाउर",
+        "crop_name_potato": "आलू",
+        "crop_name_mustard": "सरसों",
+        "crop_name_maize": "मक्का",
+        "scheme_cat_insurance": "बीमा",
+        "scheme_cat_credit": "ऋण",
+        "scheme_cat_organic_farming": "जैविक खेती",
+        "scheme_cat_soil_health": "माटी के सेहत",
+        "scheme_cat_irrigation": "सिंचाई",
+        "unit_quintal": "क्विंटल"
     }
 }
 
@@ -282,7 +454,10 @@ lang_data = {
 def set_language_and_text():
     # If a lang parameter is in the URL, set session language
     lang = request.args.get('lang')
-    if lang in lang_data:
+    # Use 'bho' as the key for Bhojpuri
+    if lang == 'bhojpuri': # If frontend sends 'bhojpuri'
+        session['lang'] = 'bho'
+    elif lang in lang_data:
         session['lang'] = lang
     elif 'lang' not in session:
         # Default language if not set in session
@@ -305,12 +480,12 @@ with app.app_context():
 @app.route('/')
 @app.route('/home')
 def home():
-    # Pass all necessary variables to the template
     return render_template('home.html', text=g.text, current_lang=g.current_lang, active_page='home', now_datetime=g.now_datetime, current_user=g.current_user)
 
 @app.route('/mandi_rates')
 def mandi_rates():
     return render_template('mandi_rates.html', text=g.text, current_lang=g.current_lang, active_page='mandi_rates', now_datetime=g.now_datetime, current_user=g.current_user)
+
 @app.route('/weather')
 def weather():
     return render_template('weather.html', text=g.text, current_lang=g.current_lang, active_page='weather', now_datetime=g.now_datetime, current_user=g.current_user)
@@ -385,22 +560,25 @@ def logout():
 def get_response():
     user_message = request.json.get('message')
     response_type = request.json.get('response_type', 'text')
+    # Get the language from the request, fallback to current_lang from g
+    lang_code = request.json.get('lang', g.current_lang)
 
     # Mock AI response based on keywords (replace with your actual LLM integration)
     if "hello" in user_message.lower() or "hi" in user_message.lower():
-        bot_response = g.text.get('chatbot_welcome', "Hello! How can I help you today?")
+        bot_response = lang_data.get(lang_code, lang_data['en']).get('chatbot_welcome', "Hello! How can I help you today?")
     elif "weather" in user_message.lower():
-        bot_response = g.text.get('weather_ask', "I can provide weather updates. What city are you interested in?")
+        bot_response = lang_data.get(lang_code, lang_data['en']).get('weather_ask', "I can provide weather updates. What city are you interested in?")
     elif "crop" in user_message.lower():
-        bot_response = g.text.get('crop_ask', "I can help with crop information. What specific crop or issue are you curious about?")
+        bot_response = lang_data.get(lang_code, lang_data['en']).get('crop_ask', "I can help with crop information. What specific crop or issue are you curious about?")
     elif "schemes" in user_message.lower() or "yojana" in user_message.lower():
-        bot_response = g.text.get('schemes_ask', "I have information on government schemes. What kind of scheme are you looking for?")
+        bot_response = lang_data.get(lang_code, lang_data['en']).get('schemes_ask', "I have information on government schemes. What kind of scheme are you looking for?")
     else:
-        bot_response = g.text.get('default_bot_response', "I am Kisaan Saathi. How can I assist you with farming-related queries?")
+        bot_response = lang_data.get(lang_code, lang_data['en']).get('default_bot_response', "I am Kisaan Saathi. How can I assist you with farming-related queries?")
 
     if response_type == 'audio':
         try:
-            tts = gTTS(text=bot_response, lang=g.current_lang)
+            # Use the determined language for gTTS
+            tts = gTTS(text=bot_response, lang=lang_code)
             audio_filename = f"response_{datetime.now().strftime('%Y%m%d%H%M%S')}.mp3"
             audio_filepath = os.path.join(app.static_folder, 'audio', audio_filename)
             os.makedirs(os.path.dirname(audio_filepath), exist_ok=True)
@@ -409,30 +587,32 @@ def get_response():
             return jsonify({'response': bot_response, 'audio_url': audio_url})
         except Exception as e:
             print(f"Error generating audio: {e}")
-            return jsonify({'response': bot_response, 'audio_url': None, 'error': g.text.get('audio_error', 'Could not generate audio.')})
+            return jsonify({'response': bot_response, 'audio_url': None, 'error': lang_data.get(lang_code, lang_data['en']).get('audio_error', 'Could not generate audio.')})
     else:
         return jsonify({'response': bot_response})
 
 # --- Weather API (Requires API Key) ---
 # Replace 'YOUR_OPENWEATHERMAP_API_KEY' with your actual key
-OPENWEATHERMAP_API_KEY = os.environ.get("OPENWEATHERMAP_API_KEY", "your_openweathermap_api_key_here") # Get key from https://openweathermap.org/api
+OPENWEATHERMAP_API_KEY = os.environ.get("OPENWEATHERMAP_API_KEY", "592a88aefc717397705d60f599ad55da") # Use env var, fallback to default for development
 
-# --- NEW: Weather Route ---
+# --- Weather Route ---
 @app.route('/get_weather', methods=['GET'])
 def get_weather():
     city = request.args.get('city')
+    lang_code = request.args.get('lang', g.current_lang) # Get language for error messages
+
     if not city:
-        return jsonify({'success': False, 'error': g.text.get('weather_no_city', 'City name is required.')}), 400
+        return jsonify({'success': False, 'error': lang_data.get(lang_code, lang_data['en']).get('weather_no_city', 'City name is required.')}), 400
 
     base_url = "http://api.openweathermap.org/data/2.5/weather?"
-    complete_url = f"{base_url}q={city}&appid={'592a88aefc717397705d60f599ad55da'}&units=metric"
+    complete_url = f"{base_url}q={city}&appid={OPENWEATHERMAP_API_KEY}&units=metric"
 
     try:
         response = requests.get(complete_url)
         data = response.json()
 
         if data.get("cod") != 200:
-            error_message = data.get("message", g.text.get('weather_city_not_found', 'City not found or API error.'))
+            error_message = data.get("message", lang_data.get(lang_code, lang_data['en']).get('weather_city_not_found', 'City not found or API error.'))
             return jsonify({'success': False, 'error': error_message}), 404
 
         main = data['main']
@@ -451,23 +631,21 @@ def get_weather():
 
     except requests.exceptions.RequestException as e:
         print(f"Weather API request failed: {e}")
-        return jsonify({'success': False, 'error': g.text.get('weather_api_error', 'Could not connect to weather service.')}), 500
+        return jsonify({'success': False, 'error': lang_data.get(lang_code, lang_data['en']).get('weather_api_error', 'Could not connect to weather service.')}), 500
     except Exception as e:
         print(f"Error processing weather data: {e}")
-        return jsonify({'success': False, 'error': g.text.get('weather_general_error', 'An unexpected error occurred.')}), 500
+        return jsonify({'success': False, 'error': lang_data.get(lang_code, lang_data['en']).get('weather_general_error', 'An unexpected error occurred.')}), 500
 
 
-# --- NEW: Mandi Rates Route (Simulated Data) ---
+# --- Mandi Rates Route (Simulated Data) ---
 @app.route('/get_mandi_rates', methods=['GET'])
 def get_mandi_rates():
-    # In a real application, you would connect to a database or a specific Mandi API
-    # Mandi rate APIs are often highly localized and may require specific partnerships.
-    # For now, we'll simulate data.
     state = request.args.get('state', 'Uttar Pradesh')
     district = request.args.get('district', 'Varanasi')
-    crop = request.args.get('crop', 'Wheat') # Default crop for example
+    crop = request.args.get('crop', 'Wheat')
+    lang_code = request.args.get('lang', g.current_lang)
 
-    simulated_rates = {
+    simulated_rates_raw = { # Store raw data, then localize on retrieval
         'Uttar Pradesh': {
             'Varanasi': {
                 'Wheat': {'min': 2200, 'max': 2400, 'avg': 2300, 'unit': 'quintal'},
@@ -482,299 +660,218 @@ def get_mandi_rates():
         'Bihar': {
             'Patna': {
                 'Rice': {'min': 2900, 'max': 3300, 'avg': 3100, 'unit': 'quintal'},
-                'Maize': {'min': 1900, 'max': 2100, 'avg': 2000, 'unit': 'quintal'}
+                'Maize': {'min': 1800, 'max': 2000, 'avg': 1900, 'unit': 'quintal'}
             }
         }
     }
 
-    rates = simulated_rates.get(state, {}).get(district, {})
-    specific_crop_rate = rates.get(crop)
+    # Helper to localize string from raw data
+    def _(key, lang=lang_code):
+        # This will attempt to find a direct match in lang_data (e.g., 'Wheat' -> 'गेहूं')
+        # If not found, it returns the original key.
+        return lang_data.get(lang, lang_data['en']).get(key, key)
 
-    if specific_crop_rate:
+    district_data_raw = simulated_rates_raw.get(state, {}).get(district, {})
+    crop_data_raw = district_data_raw.get(crop)
+
+    if crop_data_raw:
+        # Localize the unit
+        localized_crop_data = crop_data_raw.copy()
+        localized_crop_data['unit'] = _(localized_crop_data['unit'])
         return jsonify({
             'success': True,
-            'state': state,
-            'district': district,
-            'crop': crop,
-            'rates': specific_crop_rate,
-            'message': g.text.get('mandi_rate_found', 'Mandi rates found for {crop} in {district}, {state}.').format(crop=crop, district=district, state=state)
+            'state': _(state),
+            'district': _(district),
+            'crop': _(crop),
+            'rates': localized_crop_data
         })
-    elif rates:
-        # If specific crop not found but district exists, return all for district
+    elif district_data_raw:
+        # If no specific crop rates found, return all rates for the district
+        # Localize all crop names within the district data
+        localized_district_rates = {}
+        for c, rates in district_data_raw.items():
+            localized_rates = rates.copy()
+            localized_rates['unit'] = _(localized_rates['unit'])
+            localized_district_rates[_(c)] = localized_rates # Localize crop name as key
+
         return jsonify({
             'success': True,
-            'state': state,
-            'district': district,
-            'crop': g.text.get('all_crops', 'all crops'),
-            'rates': rates, # Return all available crops for the district
-            'message': g.text.get('mandi_rate_all_crops', 'Mandi rates for {district}, {state}.').format(district=district, state=state)
+            'state': _(state),
+            'district': _(district),
+            'crop': None, # Indicate no specific crop rates
+            'message': g.text.get('no_specific_rates', 'No specific rates found for this crop, displaying available rates for the district.'),
+            'rates': localized_district_rates
         })
     else:
         return jsonify({
             'success': False,
-            'error': g.text.get('mandi_rate_not_found', 'No mandi rates found for the specified location or crop.'),
-            'state': state, 'district': district, 'crop': crop
+            'error': g.text.get('mandi_general_error', 'An error occurred fetching mandi rates.'),
+            'details': 'State or district data not found.'
         }), 404
 
+# --- Crop Prediction Route (Simulated Data) ---
+@app.route('/upload_crop_image', methods=['POST'])
+def upload_crop_image():
+    lang_code = request.form.get('lang', g.current_lang) # Get language from form data
 
-# --- NEW: Schemes Route (Simulated Data) ---
-@app.route('/get_schemes_data', methods=['GET'])
-def get_schemes_data():
-    category = request.args.get('category', 'all').lower() # e.g., 'subsidy', 'loan', 'insurance'
-    state = request.args.get('state', 'all').lower()
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'error': lang_data.get(lang_code, lang_data['en']).get('prediction_no_file_uploaded', 'No file part')}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'success': False, 'error': lang_data.get(lang_code, lang_data['en']).get('prediction_no_selected_file', 'No selected file')}), 400
+    if file:
+        # In a real application, you would save the file, process it with a ML model,
+        # and return a real prediction.
+        # For simulation, let's just pretend to process it and return a generic localized prediction.
 
-    simulated_schemes = [
+        # Example: Save the file to a static directory to make it accessible
+        # This is a basic example; consider security for file uploads in production.
+        upload_folder = os.path.join(app.static_folder, 'uploads')
+        os.makedirs(upload_folder, exist_ok=True)
+        filename = f"crop_image_{datetime.now().strftime('%Y%m%d%H%M%S')}_{file.filename}"
+        filepath = os.path.join(upload_folder, filename)
+        file.save(filepath)
+
+        # Simulate prediction result and localize it
+        simulated_prediction = "This crop appears to be healthy with no major diseases detected."
+        if "leaf_spot" in file.filename.lower(): # Just a silly example condition
+            simulated_prediction = "Signs of Leaf Spot disease detected. Consider applying a fungicide."
+
+        # You would integrate your actual ML model here to get a real prediction.
+        # Once you have the real prediction, you might have pre-defined localized messages for different diseases.
+        # For now, we'll just use a placeholder and localize it if possible or use the original.
+        localized_prediction_messages = {
+            'en': {
+                "healthy_crop": "This crop appears to be healthy with no major diseases detected.",
+                "leaf_spot": "Signs of Leaf Spot disease detected. Consider applying a fungicide.",
+                "rust": "Rust disease identified. Consult an agricultural expert for treatment."
+            },
+            'hi': {
+                "healthy_crop": "यह फसल स्वस्थ दिख रही है, कोई बड़ी बीमारी नहीं पाई गई।",
+                "leaf_spot": "पत्ती धब्बे रोग के लक्षण पाए गए। फफूंदनाशक का प्रयोग करने पर विचार करें।",
+                "rust": "रस्ट रोग की पहचान हुई। उपचार के लिए कृषि विशेषज्ञ से सलाह लें।"
+            },
+            'bho': {
+                "healthy_crop": "ई फसल ठीक बा, कवनो बड़हन बीमारी नइखे मिलल।",
+                "leaf_spot": "पत्ता पर धब्बा रोग के लक्षण मिलल। फंगसनाशक के उपयोग पर विचार करीं।",
+                "rust": "रस्ट रोग के पहचान भइल। इलाज खातिर कृषि विशेषज्ञ से सलाह लीं।"
+            }
+        }
+
+        # Select the appropriate localized message based on the simulated outcome
+        final_prediction_message = ""
+        if "healthy" in simulated_prediction.lower():
+            final_prediction_message = localized_prediction_messages.get(lang_code, localized_prediction_messages['en']).get('healthy_crop')
+        elif "leaf spot" in simulated_prediction.lower():
+            final_prediction_message = localized_prediction_messages.get(lang_code, localized_prediction_messages['en']).get('leaf_spot')
+        else: # Fallback
+            final_prediction_message = simulated_prediction # Use the original if no specific localization
+
+        return jsonify({
+            'success': True,
+            'prediction': final_prediction_message,
+            'image_url': url_for('static', filename=f'uploads/{filename}')
+        })
+    return jsonify({'success': False, 'error': lang_data.get(lang_code, lang_data['en']).get('prediction_unknown_error', 'An unknown error occurred during upload.')}), 500
+
+# --- Schemes Route (Simulated Data) ---
+@app.route('/get_schemes', methods=['GET'])
+def get_schemes():
+    category_filter = request.args.get('category')
+    eligibility_filter = request.args.get('eligibility')
+    lang_code = request.args.get('lang', g.current_lang)
+
+    simulated_schemes_raw = [ # Store raw data
         {
-            'name_en': 'Pradhan Mantri Fasal Bima Yojana',
-            'name_hi': 'प्रधानमंत्री फसल बीमा योजना',
-            'name_bhojpuri': 'प्रधानमंत्री फसल बीमा योजना',
-            'description_en': 'Provides crop insurance to farmers.',
-            'description_hi': 'किसानों को फसल बीमा प्रदान करती है।',
-            'description_bhojpuri': 'किसानन के फसल बीमा देला।',
-            'category': 'insurance',
-            'eligibility_en': 'Farmers growing notified crops in notified areas.',
-            'eligibility_hi': 'अधिसूचित क्षेत्रों में अधिसूचित फसलें उगाने वाले किसान।',
-            'eligibility_bhojpuri': 'अधिसूचित क्षेत्रन में अधिसूचित फसल उपजावे वाला किसान।',
-            'state_applicability': ['all'] # Applies to all states
+            "name": "Pradhan Mantri Fasal Bima Yojana (PMFBY)",
+            "description": "Provides crop insurance against non-preventable natural risks.",
+            "category": "Insurance",
+            "eligibility": "Farmers growing notified crops in notified areas."
         },
         {
-            'name_en': 'Kisan Credit Card (KCC) Scheme',
-            'name_hi': 'किसान क्रेडिट कार्ड योजना',
-            'name_bhojpuri': 'किसान क्रेडिट कार्ड योजना',
-            'description_en': 'Provides timely and adequate credit support to farmers.',
-            'description_hi': 'किसानों को समय पर और पर्याप्त ऋण सहायता प्रदान करती है।',
-            'description_bhojpuri': 'किसानन के समय पर आ पूरा ऋण देला।',
-            'category': 'loan',
-            'eligibility_en': 'Farmers involved in agriculture and allied activities.',
-            'eligibility_hi': 'कृषि और संबद्ध गतिविधियों में शामिल किसान।',
-            'eligibility_bhojpuri': 'खेती आ संबंधित काम में लागल किसान।',
-            'state_applicability': ['all']
+            "name": "Kisan Credit Card (KCC)",
+            "description": "Provides timely and adequate credit support to farmers for their agricultural operations.",
+            "category": "Credit",
+            "eligibility": "Farmers, individual/joint cultivators, tenant farmers, share croppers, SHGs/JLGs of farmers."
         },
         {
-            'name_en': 'PM-KISAN Samman Nidhi Yojana',
-            'name_hi': 'पीएम-किसान सम्मान निधि योजना',
-            'name_bhojpuri': 'पीएम-किसान सम्मान निधि योजना',
-            'description_en': 'Income support scheme for farmers.',
-            'description_hi': 'किसानों के लिए आय सहायता योजना।',
-            'description_bhojpuri': 'किसानन खातिर आय मदद योजना।',
-            'category': 'subsidy',
-            'eligibility_en': 'All landholding farmer families.',
-            'eligibility_hi': 'सभी भूमिधारक किसान परिवार।',
-            'eligibility_bhojpuri': 'सभ जमीन रखले किसान परिवार।',
-            'state_applicability': ['all']
+            "name": "Paramparagat Krishi Vikas Yojana (PKVY)",
+            "description": "Promotes organic farming through cluster approach.",
+            "category": "Organic Farming",
+            "eligibility": "Farmers willing to undertake organic farming as per NPOP standards."
         },
         {
-            'name_en': 'Uttar Pradesh Krishak Samridhi Aayog',
-            'name_hi': 'उत्तर प्रदेश कृषक समृद्धि आयोग',
-            'name_bhojpuri': 'उत्तर प्रदेश कृषक समृद्धि आयोग',
-            'description_en': 'Aimed at doubling farmers\' income in Uttar Pradesh.',
-            'description_hi': 'उत्तर प्रदेश में किसानों की आय दोगुनी करने का लक्ष्य।',
-            'description_bhojpuri': 'उत्तर प्रदेश में किसानन के आमदनी दुगुना करे के लक्ष्य।',
-            'category': 'development',
-            'eligibility_en': 'Farmers in Uttar Pradesh.',
-            'eligibility_hi': 'उत्तर प्रदेश के किसान।',
-            'eligibility_bhojpuri': 'उत्तर प्रदेश के किसान।',
-            'state_applicability': ['uttar pradesh', 'all'] # Specific to UP, but include 'all' for broad searches
+            "name": "Soil Health Card Scheme",
+            "description": "Provides information to farmers on nutrient status of their soil and recommendations on dosage of nutrients.",
+            "category": "Soil Health",
+            "eligibility": "All farmers."
+        },
+        {
+            "name": "Pradhan Mantri Krishi Sinchai Yojana (PMKSY)",
+            "description": "Aims to expand cultivable area under assured irrigation, improve water use efficiency.",
+            "category": "Irrigation",
+            "eligibility": "Farmers requiring irrigation facilities."
         }
     ]
 
+    # Helper to localize scheme specific strings
+    def _scheme_prop(key, prop_name, lang=lang_code):
+        # This function should map generic property names like "Insurance" to their localized keys
+        # For example, "Insurance" -> "scheme_cat_insurance" and then look that up
+        mapping = {
+            "Insurance": "scheme_cat_insurance",
+            "Credit": "scheme_cat_credit",
+            "Organic Farming": "scheme_cat_organic_farming",
+            "Soil Health": "scheme_cat_soil_health",
+            "Irrigation": "scheme_cat_irrigation",
+            # Add more as needed for descriptions and eligibilities if they are standardized
+        }
+        localized_key = mapping.get(key, key) # Get mapped key or use original
+        return lang_data.get(lang, lang_data['en']).get(localized_key, key)
+
+
     filtered_schemes = []
-    current_lang = g.current_lang
+    for scheme in simulated_schemes_raw:
+        match = True
+        # Filter based on raw data for consistency in filtering logic
+        if category_filter and category_filter.lower() not in scheme['category'].lower():
+            match = False
+        if eligibility_filter and eligibility_filter.lower() not in scheme['eligibility'].lower():
+            match = False
 
-    for scheme in simulated_schemes:
-        match_category = (category == 'all' or scheme['category'] == category)
-        match_state = (state == 'all' or state in scheme['state_applicability'])
-
-        if match_category and match_state:
-            # Prepare scheme data for the current language
-            scheme_data = {
-                'name': scheme.get(f'name_{current_lang}', scheme['name_en']), # Fallback to English
-                'description': scheme.get(f'description_{current_lang}', scheme['description_en']),
-                'category': scheme['category'],
-                'eligibility': scheme.get(f'eligibility_{current_lang}', scheme['eligibility_en']),
-                'state_applicability': scheme['state_applicability']
+        if match:
+            # Localize the scheme properties before adding to filtered_schemes
+            localized_scheme = {
+                "name": scheme["name"], # Scheme names might not always be localized directly
+                "description": _scheme_prop(scheme["description"], "description"), # You might need a more sophisticated lookup here
+                "category": _scheme_prop(scheme["category"], "category"),
+                "eligibility": _scheme_prop(scheme["eligibility"], "eligibility") # Similar for eligibility
             }
-            filtered_schemes.append(scheme_data)
+            # For demonstration, I'm using _scheme_prop, but for free-form text like description
+            # and eligibility, you might need a more advanced translation method (e.g., an LLM translating it).
+            # For now, if the string isn't in lang_data, it returns the original English.
+            # You'll likely need to expand `lang_data` with translations for actual descriptions and eligibilities.
+            filtered_schemes.append(localized_scheme)
 
     if filtered_schemes:
         return jsonify({
             'success': True,
             'schemes': filtered_schemes,
-            'message': g.text.get('schemes_found', 'Found {count} schemes.').format(count=len(filtered_schemes))
+            'message': lang_data.get(lang_code, lang_data['en']).get('schemes_found_title', 'Found Schemes')
         })
     else:
         return jsonify({
             'success': False,
-            'error': g.text.get('schemes_not_found', 'No schemes found for the specified criteria.'),
-            'category': category, 'state': state
+            'message': lang_data.get(lang_code, lang_data['en']).get('schemes_general_error', 'An error occurred fetching schemes.'),
+            'details': 'No schemes found matching criteria.'
         }), 404
 
 
-# --- UPDATE: Add new language strings to lang_data in app.py ---
-# (Make sure to integrate these into your existing lang_data dictionary)
-
-# Example additions:
-# Inside 'en':
-# "weather_no_city": "City name is required.",
-# "weather_city_not_found": "City not found or API error.",
-# "weather_api_error": "Could not connect to weather service.",
-# "weather_general_error": "An unexpected error occurred.",
-# "mandi_rate_found": "Mandi rates found for {crop} in {district}, {state}.",
-# "mandi_rate_all_crops": "Mandi rates for {district}, {state}.",
-# "mandi_rate_not_found": "No mandi rates found for the specified location or crop.",
-# "all_crops": "all crops",
-# "schemes_found": "Found {count} schemes.",
-# "schemes_not_found": "No schemes found for the specified criteria.",
-# "select_state": "Select State",
-# "select_district": "Select District",
-# "select_crop": "Select Crop",
-# "get_rates": "Get Rates",
-# "select_category": "Select Category",
-# "get_schemes": "Get Schemes",
-# "all_categories": "All Categories",
-# "all_states": "All States",
-
-
-# Inside 'hi':
-# "weather_no_city": "शहर का नाम आवश्यक है।",
-# "weather_city_not_found": "शहर नहीं मिला या एपीआई त्रुटि।",
-# "weather_api_error": "मौसम सेवा से कनेक्ट नहीं हो सका।",
-# "weather_general_error": "एक अनपेक्षित त्रुटि हुई।",
-# "mandi_rate_found": "{state} के {district} में {crop} के लिए मंडी दरें मिलीं।",
-# "mandi_rate_all_crops": "{state} के {district} के लिए मंडी दरें।",
-# "mandi_rate_not_found": "निर्दिष्ट स्थान या फसल के लिए कोई मंडी दर नहीं मिली।",
-# "all_crops": "सभी फसलें",
-# "schemes_found": "{count} योजनाएँ मिलीं।",
-# "schemes_not_found": "निर्दिष्ट मानदंडों के लिए कोई योजना नहीं मिली।",
-# "select_state": "राज्य चुनें",
-# "select_district": "जिला चुनें",
-# "select_crop": "फसल चुनें",
-# "get_rates": "दरें प्राप्त करें",
-# "select_category": "श्रेणी चुनें",
-# "get_schemes": "योजनाएं प्राप्त करें",
-# "all_categories": "सभी श्रेणियां",
-# "all_states": "सभी राज्य",
-
-# Inside 'bhojpuri':
-# "weather_no_city": "शहर के नाम जरूरी बा।",
-# "weather_city_not_found": "शहर ना मिलल भा एपीआई में गलती बा।",
-# "weather_api_error": "मौसम सेवा से जुड़ ना पावल।",
-# "weather_general_error": "अचानक कुछ गलती हो गइल।",
-# "mandi_rate_found": "{state} के {district} में {crop} खातिर मंडी के रेट मिलल।",
-# "mandi_rate_all_crops": "{state} के {district} खातिर मंडी के रेट।",
-# "mandi_rate_not_found": "बतावल जगह भा फसल खातिर कवनो मंडी के रेट ना मिलल।",
-# "all_crops": "सभ फसल",
-# "schemes_found": "{count} गो योजना मिलल।",
-# "schemes_not_found": "बतावल मानदंड खातिर कवनो योजना ना मिलल।",
-# "select_state": "राज्य चुनीं",
-# "select_district": "जिला चुनीं",
-# "select_crop": "फसल चुनीं",
-# "get_rates": "रेट पावीं",
-# "select_category": "श्रेणी चुनीं",
-# "get_schemes": "योजना पावीं",
-# "all_categories": "सभ श्रेणी",
-# "all_states": "सभ राज्य",
-
-def get_crop_prediction(image_path):
-    """
-    This is a placeholder function for your actual machine learning prediction.
-    Replace this with your model loading, image preprocessing, and inference logic.
-    """
-    if not os.path.exists(image_path):
-        return "Error: Image file not found for prediction."
-
-    try:
-        img = Image.open(image_path).convert('RGB')
-        # Preprocessing steps would go here, e.g., resizing, normalization
-        # Example: img = img.resize((224, 224)) # Resize to model's input size
-        # Example: img_array = np.asarray(img) / 255.0 # Normalize pixel values
-        # Example: img_array = np.expand_dims(img_array, axis=0) # Add batch dimension
-
-        # Mock predictions for demonstration
-        mock_results = {
-            "apple": "Apple Scab",
-            "corn": "Corn Common Rust",
-            "potato": "Potato Early Blight",
-            "tomato": "Tomato Bacterial Spot",
-            "grape": "Grape Black Rot",
-            "healthy": "Healthy Crop"
-        }
-        # A very basic mock based on file name or random choice
-        filename_lower = os.path.basename(image_path).lower()
-        if "apple" in filename_lower:
-            prediction = "Apple Scab (Mock)"
-        elif "corn" in filename_lower:
-            prediction = "Corn Common Rust (Mock)"
-        elif "potato" in filename_lower:
-            prediction = "Potato Early Blight (Mock)"
-        elif "tomato" in filename_lower:
-            prediction = "Tomato Bacterial Spot (Mock)"
-        elif "grape" in filename_lower:
-            prediction = "Grape Black Rot (Mock)"
-        elif "healthy" in filename_lower: # Based on your screenshot, it predicted 'Healthy Crop'
-             prediction = "Healthy Crop (Mock)"
-        else:
-            prediction = np.random.choice(list(mock_results.values())) + " (Mock)"
-
-        # If you had a real model:
-        # if model:
-        #     predictions_array = model.predict(img_array)
-        #     predicted_class_index = np.argmax(predictions_array)
-        #     # Map index to actual crop/disease name (you'd have a list of class names)
-        #     class_names = ["Class1", "Class2", "Healthy", ...]
-        #     prediction = class_names[predicted_class_index]
-        # else:
-        #     prediction = "No model loaded. Using mock prediction."
-
-        return f"{prediction}" # Return just the prediction string
-
-    except Exception as e:
-        return f"Error during image processing or mock prediction: {e}"
-
-@app.route('/upload_crop_image', methods=['POST'])
-def upload_crop_image():
-    if 'file' not in request.files:
-        return jsonify({'success': False, 'error': g.text.prediction_no_file_uploaded})
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'success': False, 'error': g.text.prediction_no_selected_file})
-    if file:
-        try:
-            # Create a 'temp_uploads' directory if it doesn't exist
-            temp_dir = os.path.join(app.root_path, 'temp_uploads')
-            os.makedirs(temp_dir, exist_ok=True)
-
-            filename = f"uploaded_crop_{datetime.now().strftime('%Y%m%d%H%M%S')}_{file.filename}"
-            filepath = os.path.join(temp_dir, filename)
-            file.save(filepath)
-
-            # Get prediction using your model (or mock function)
-            prediction_result = get_crop_prediction(filepath)
-
-            # Convert image to base64 for display (optional, can also serve static)
-            with open(filepath, "rb") as image_file:
-                encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
-            image_url = f"data:image/jpeg;base64,{encoded_string}" # Assuming JPEG
-
-            # Clean up the temporary file (optional, but good practice)
-            # os.remove(filepath) # Uncomment this if you don't need to keep uploaded files
-
-            return jsonify({
-                'success': True,
-                'message': g.text.prediction_upload_success,
-                'prediction': prediction_result,
-                'image_url': image_url
-            })
-        except Exception as e:
-            print(f"Error during image upload/prediction: {e}")
-            return jsonify({'success': False, 'error': f"{g.text.prediction_error}: {str(e)}"})
-    return jsonify({'success': False, 'error': g.text.prediction_unknown_error})
-
-# --- Error Handlers ---
-@app.errorhandler(404)
-def page_not_found(e):
-    # Pass all necessary variables to the 404 template as well
-    return render_template('404.html', text=g.text, current_lang=g.current_lang, active_page='404', now_datetime=g.now_datetime, current_user=g.current_user), 404
-
 if __name__ == '__main__':
-    app.run(debug=True) # Set debug=False in production
+    # Initialize the database if it doesn't exist
+    with app.app_context():
+        db.create_all()
+    # It's good practice to create the static/audio directory if it doesn't exist
+    os.makedirs(os.path.join(app.static_folder, 'audio'), exist_ok=True)
+    os.makedirs(os.path.join(app.static_folder, 'uploads'), exist_ok=True)
+    app.run(debug=True)
