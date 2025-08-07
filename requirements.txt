@@ -1,4 +1,5 @@
 Flask
+gunicorn
 firebase-admin
 gTTS
 langchain
@@ -6,4 +7,5 @@ transformers # For whisper (potentially)
 openai # If using OpenAI models with LangChain
 python-dotenv # For environment variables (API keys)
 requests # For external APIs like IMD, AgmarkNet
+
 Pillow # For image processing in crop_prediction
